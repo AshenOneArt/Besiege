@@ -1,4 +1,4 @@
-
+//这是一种常规的延迟循环
 function delay(time)
 {
     var stop = 0
@@ -6,12 +6,12 @@ function delay(time)
     while(stop != 1){}
     return stop
 }
-
 while(delay(0.5))
 {
                
 }
-//上面是一种常规的延迟循环
+
+//指定PIO传感器字段获取（延时检测）
 function checkSensor() 
 {
     var info = readSensor(0);
@@ -19,4 +19,12 @@ function checkSensor()
     print(info.quaternion);
     setTimeout(1, checkSensor)
 }
-checkSensor();
+//指定PIO端口信息获取（延时检测）
+function checkIn() 
+{
+    var info = in(0);
+    if (info)
+    print(info);
+    setTimeout(1, checkIn)
+}
+

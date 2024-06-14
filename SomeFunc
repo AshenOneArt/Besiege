@@ -1,0 +1,14 @@
+
+function delay(time)
+{
+    var stop = 0
+    setTimeout(time,function(){stop = 1})
+    while(stop != 1){}
+    return stop
+}
+
+while(delay(0.5))
+{
+               
+}
+

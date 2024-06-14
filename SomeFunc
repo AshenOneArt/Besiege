@@ -11,4 +11,12 @@ while(delay(0.5))
 {
                
 }
-
+//上面是一种常规的延迟循环
+function checkSensor() 
+{
+    var info = readSensor(0);
+    if (info)
+    print(info.quaternion);
+    setTimeout(1, checkSensor)
+}
+checkSensor();

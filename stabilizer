@@ -1,0 +1,98 @@
+//User CustomDate Input
+var smallFeildTension = 4;    
+var bigFeildTension   = 1.22;
+var maxRotAccelerate  = 4;
+var minRotAccelerate  = 0.1;
+var maxRotVelocity    = 2;
+//GlobalVariable//
+var correctVelocity   = 0; 
+var lastRotate;
+
+function delay(time)
+{
+    var stop = 0
+    setTimeout(time,function(){stop = 1})
+    while(stop != 1){}
+    return stop
+}
+
+function lerp(a,b,alpha)
+{
+    alpha = alpha >= 1 ? 1 : alpha
+    alpha = alpha <= 0 ? 0 : alpha
+    return a*(1-alpha) + b*alpha
+}
+
+function saturate(src)
+{ 
+    src = src >= 1 ? 1 : src
+    src = src <= 0 ? 0 : src
+    return src
+}
+
+function abs(src)
+{
+    return src < 0 ? -src : src
+}
+
+while(delay(0.1))
+{
+    var vectorInfo = in(0);
+    if (vectorInfo)
+    var rotate = 180 - ((vectorInfo + 0.5)%1) * 360;            
+    print('rotate  ' + rotate)      
+    rotateDt = rotate - lastRotate   
+    if(rotateDt) 
+    print('rotateDt  ' + rotateDt) 
+    
+    
+    var smallFieldAngle = 10
+    var bigFieldAngle = 30
+    var aa = Math.pow(1 - saturate(abs(rotate/(smallFieldAngle))),smallFeildTension)
+    var bb = Math.pow(1 - saturate(abs(rotate/(bigFieldAngle))),bigFeildTension)
+      
+    var accelerate = lerp(0.1,maxRotAccelerate,bb)
+    var accelerateS = lerp(0,minRotAccelerate,aa)  
+    
+    
+    var dt = rotate > 0 ? (1/40) * rotateDt : -(1/40) * rotateDt
+    
+    if(-smallFieldAngle < rotate && rotate < smallFieldAngle) 
+    { 
+        accelerateS = lerp(accelerate,0,aa)                 
+        correctVelocity = lerp(correctVelocity,correctVelocity*0.5,aa)
+        
+    }
+    if(-bigFieldAngle < rotate && rotate < bigFieldAngle) 
+    {                 
+        accelerate = lerp(accelerate,0,bb)                
+        correctVelocity = lerp(correctVelocity,-correctVelocity,bb)
+    }
+    
+    print('accelerate  ' + accelerate)
+    if(rotate > 0)
+    {
+        correctVelocity +=  accelerate
+    }
+     
+    if(rotate < 0)
+    {
+        correctVelocity += -accelerate
+    }  
+    
+
+    correctVelocity = correctVelocity < maxRotVelocity ? 
+    correctVelocity : maxRotVelocity
+    
+    correctVelocity = correctVelocity > -maxRotVelocity ? 
+    correctVelocity : -maxRotVelocity
+    
+    forwardCorrect = correctVelocity > 0 ? correctVelocity : 0
+    backCorrect = correctVelocity < 0 ? correctVelocity * -1 : 0
+    out(1,forwardCorrect)
+    if(correctVelocity < 0)out(1,0.000001)
+    out(2,backCorrect)
+    print('correctVelocity  ' + correctVelocity) 
+   
+   lastRotate = rotate  
+}

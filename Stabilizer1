@@ -1,0 +1,98 @@
+//User CustomDate Input
+var smallFeildTension = 4;
+var bigFeildTension   = 0.8;
+var maxRotAccelerate  = 4;
+var minRotAccelerate  = 0.5;
+var maxRotVelocity    = 2;
+//GlobalVariable//
+var correctVelocity_x   = 0;
+var correctVelocity_y   = 0;
+
+function delay(time)
+{
+    var stop = 0
+    setTimeout(time,function(){stop = 1})
+    while(stop != 1){}
+    return stop
+}
+
+function lerp(a,b,alpha)
+{
+    alpha = alpha >= 1 ? 1 : alpha
+    alpha = alpha <= 0 ? 0 : alpha
+    return a*(1-alpha) + b*alpha
+}
+
+function saturate(src)
+{
+    src = src >= 1 ? 1 : src
+    src = src <= 0 ? 0 : src
+    return src
+}
+
+function abs(src)
+{
+    return src < 0 ? -src : src
+}
+
+//计算单轴向稳定角度Func（角度器ID,前转向ID,后转向ID,Debug前缀名字,是否输出Debug信息）
+function caculateStabilizerAxial(inputID,OutputID_Forwards,OutputID_Backwards,
+                                 correctVelocity,Name,PrintOrNot)
+{
+    var vectorInfo = in(inputID)
+    if (vectorInfo)
+        var rotate = 180 - ((vectorInfo + 0.5)%1) * 360
+    if(PrintOrNot)print(Name + 'rotate  ' + rotate)
+
+    var smallFieldAngle = 10
+    var bigFieldAngle = 30
+    var smallFactor = Math.pow(1 - saturate(abs(rotate/(smallFieldAngle))),smallFeildTension)
+    var bigFactor = Math.pow(1 - saturate(abs(rotate/(bigFieldAngle))),bigFeildTension)
+
+    var accelerate = lerp(0.1,maxRotAccelerate,bigFactor)
+    var accelerateS = lerp(0,minRotAccelerate,smallFactor)
+
+    if(-smallFieldAngle < rotate && rotate < smallFieldAngle)
+    {
+        accelerateS = lerp(accelerate,0,smallFactor)
+        correctVelocity = lerp(correctVelocity,correctVelocity*0.5,smallFactor)
+    }
+    if(-bigFieldAngle < rotate && rotate < bigFieldAngle)
+    {
+        accelerate = lerp(accelerate,0,bigFactor)
+        correctVelocity = lerp(correctVelocity,-correctVelocity,bigFactor)
+    }
+    if(PrintOrNot)print(Name + 'accelerate  ' + accelerate)
+
+    if(rotate > 0)
+    {
+        correctVelocity +=  accelerate
+    }
+
+    if(rotate < 0)
+    {
+        correctVelocity += -accelerate
+    }
+    correctVelocity = correctVelocity < maxRotVelocity ?
+        correctVelocity : maxRotVelocity
+
+    correctVelocity = correctVelocity > -maxRotVelocity ?
+        correctVelocity : -maxRotVelocity
+
+    forwardCorrect = correctVelocity > 0 ? correctVelocity : 0
+    backCorrect = correctVelocity < 0 ? correctVelocity * -1 : 0
+    out(OutputID_Forwards,forwardCorrect)
+    if(correctVelocity < 0)out(OutputID_Forwards,0.000001)
+    out(OutputID_Backwards,backCorrect)
+    
+    if(PrintOrNot)print(Name + 'correctVelocity  ' + correctVelocity)
+    return correctVelocity
+}
+
+while(delay(0.1))
+{
+    correctVelocity_x = 
+        caculateStabilizerAxial(0,1,2,correctVelocity_x,'X ',1)
+    correctVelocity_y = 
+        caculateStabilizerAxial(3,4,5,correctVelocity_y,'Y ',1)      
+}

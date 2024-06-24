@@ -6,10 +6,15 @@ function delay(time)
     return stop
 }
 
+function caculateFireTime(inputID,TargetAngle,OutputID_Fire)
+{
+    var vectorInfo = in(inputID)
+    if (vectorInfo)
+        var rotate = 180 - ((vectorInfo + 0.5)%1) * 360
+    if(PrintOrNot)print(Name + 'rotate  ' + rotate)
+}
+
 while(delay(0.1))
 {
-    correctVelocity_x = 
-        caculateStabilizerAxial(0,1,2,correctVelocity_x,'X ',1)
-    correctVelocity_y = 
-        caculateStabilizerAxial(3,4,5,correctVelocity_y,'Y ',1)      
+    caculateFireTime(0,90,1)
 }

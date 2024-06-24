@@ -1,0 +1,15 @@
+function delay(time)
+{
+    var stop = 0
+    setTimeout(time,function(){stop = 1})
+    while(stop != 1){}
+    return stop
+}
+
+while(delay(0.1))
+{
+    correctVelocity_x = 
+        caculateStabilizerAxial(0,1,2,correctVelocity_x,'X ',1)
+    correctVelocity_y = 
+        caculateStabilizerAxial(3,4,5,correctVelocity_y,'Y ',1)      
+}
